@@ -31,6 +31,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     renderTopLeftUI,
     renderTopRightUI,
     langCode = defaultLang.code,
+    hideAnnotations,
     viewModeEnabled,
     zenModeEnabled,
     gridModeEnabled,
@@ -49,6 +50,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     onPointerDown,
     onPointerUp,
     onScrollChange,
+    onHideAnnotationsChange,
     onDuplicate,
     children,
     validateEmbeddable,
@@ -71,6 +73,38 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     tools: {
       image: props.UIOptions?.tools?.image ?? true,
     },
+    toolBar: {
+      ...DEFAULT_UI_OPTIONS.toolBar,
+      ...props.UIOptions?.toolBar,
+    },
+    topLeftMenuEnabled:
+      props.UIOptions?.topLeftMenuEnabled ??
+      DEFAULT_UI_OPTIONS.topLeftMenuEnabled,
+    libraryEnabled:
+      props.UIOptions?.libraryEnabled ?? DEFAULT_UI_OPTIONS.libraryEnabled,
+    footer: {
+      ...DEFAULT_UI_OPTIONS.footer,
+      ...props.UIOptions?.footer,
+    },
+    fontPicker: {
+      ...DEFAULT_UI_OPTIONS.fontPicker,
+      ...props.UIOptions?.fontPicker,
+    },
+    shapeControl: {
+      ...DEFAULT_UI_OPTIONS.shapeControl,
+      ...props.UIOptions?.shapeControl,
+    },
+    viewModeControlEnabled:
+      props.UIOptions?.viewModeControlEnabled ??
+      DEFAULT_UI_OPTIONS.viewModeControlEnabled,
+    undoRedoPosition:
+      props.UIOptions?.undoRedoPosition ?? DEFAULT_UI_OPTIONS.undoRedoPosition,
+    swapTopMenuAndFooter:
+      props.UIOptions?.swapTopMenuAndFooter ??
+      DEFAULT_UI_OPTIONS.swapTopMenuAndFooter,
+    hideAnnotationsControlEnabled:
+      props.UIOptions?.hideAnnotationsControlEnabled ??
+      DEFAULT_UI_OPTIONS.hideAnnotationsControlEnabled,
   };
 
   if (canvasActions?.export) {
@@ -124,6 +158,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
           renderTopLeftUI={renderTopLeftUI}
           renderTopRightUI={renderTopRightUI}
           langCode={langCode}
+          hideAnnotations={hideAnnotations}
           viewModeEnabled={viewModeEnabled}
           zenModeEnabled={zenModeEnabled}
           gridModeEnabled={gridModeEnabled}
@@ -143,6 +178,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           onScrollChange={onScrollChange}
+          onHideAnnotationsChange={onHideAnnotationsChange}
           onDuplicate={onDuplicate}
           validateEmbeddable={validateEmbeddable}
           renderEmbeddable={renderEmbeddable}

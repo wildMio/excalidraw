@@ -618,3 +618,7 @@ export const projectFixedPointOntoDiagonal = (
 
   return p && isPointInElement(p, element, elementsMap) ? p : null;
 };
+
+export const isGhostElement = (element: ExcalidrawElement): boolean => {
+  return element.customData?.isGhost === true;
+};

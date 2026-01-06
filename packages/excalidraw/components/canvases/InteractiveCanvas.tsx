@@ -24,6 +24,8 @@ import type {
 import { t } from "../../i18n";
 import { renderInteractiveScene } from "../../renderer/interactiveScene";
 
+import { isViewModeActive } from "../../appState";
+
 import type {
   AppClassProperties,
   AppState,
@@ -202,7 +204,7 @@ const InteractiveCanvas = (props: InteractiveCanvasProps) => {
       style={{
         width: props.appState.width,
         height: props.appState.height,
-        cursor: props.appState.viewModeEnabled
+        cursor: isViewModeActive(props.appState)
           ? CURSOR_TYPE.GRAB
           : CURSOR_TYPE.AUTO,
       }}
@@ -216,7 +218,7 @@ const InteractiveCanvas = (props: InteractiveCanvasProps) => {
       onTouchMove={props.onTouchMove}
       onPointerDown={props.onPointerDown}
       onDoubleClick={
-        props.appState.viewModeEnabled ? undefined : props.onDoubleClick
+        isViewModeActive(props.appState) ? undefined : props.onDoubleClick
       }
     >
       {t("labels.drawingCanvas")}
@@ -232,6 +234,7 @@ const getRelevantAppStateProps = (
   scrollY: appState.scrollY,
   width: appState.width,
   height: appState.height,
+  hideAnnotations: appState.hideAnnotations,
   viewModeEnabled: appState.viewModeEnabled,
   openDialog: appState.openDialog,
   editingGroupId: appState.editingGroupId,

@@ -351,6 +351,13 @@ body.excalidraw-cursor-resize * {
       grid-template-columns: 1fr 1fr 1fr;
       grid-gap: 3rem;
     }
+
+    &.layer-ui__wrapper__menu--bottom {
+      bottom: 0;
+      position: absolute;
+      align-items: end;
+      width: 100%;
+    }
   }
 
   .App-menu_top > *:first-child {
@@ -388,6 +395,11 @@ body.excalidraw-cursor-resize * {
 
     section {
       display: flex;
+    }
+
+    &.layer-ui__wrapper__footer--top {
+      bottom: auto;
+      top: 1rem;
     }
   }
 
@@ -710,6 +722,22 @@ body.excalidraw-cursor-resize * {
   .link-button {
     display: flex;
     text-decoration: none !important;
+  }
+
+  .order-1 {
+    order: 1;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .bottom-0 {
+    bottom: 0;
+  }
+
+  .gap-0\.5 {
+    gap: 0.5rem;
   }
 }
 

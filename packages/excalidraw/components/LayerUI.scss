@@ -64,6 +64,9 @@
       &.layer-ui__wrapper__footer-left--transition-bottom {
         transform: translate(0, 92px);
       }
+      &.layer-ui__wrapper__footer-left--transition-top {
+        transform: translate(0, -92px);
+      }
     }
 
     .disable-zen-mode {

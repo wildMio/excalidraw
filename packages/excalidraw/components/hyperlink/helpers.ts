@@ -12,6 +12,8 @@ import type {
   NonDeletedExcalidrawElement,
 } from "@excalidraw/element/types";
 
+import { isViewModeActive } from "../../appState";
+
 import type { AppState, UIAppState } from "../../types";
 
 export const DEFAULT_LINK_SIZE = 12;
@@ -91,7 +93,7 @@ export const isPointHittingLink = (
   }
   if (
     !isMobile &&
-    appState.viewModeEnabled &&
+    isViewModeActive(appState) &&
     hitElementBoundingBox(pointFrom(x, y), element, elementsMap)
   ) {
     return true;

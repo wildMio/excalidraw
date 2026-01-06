@@ -72,6 +72,8 @@ import {
   useLibraryItemSvg,
 } from "../../hooks/useLibraryItemSvg";
 
+import { isViewModeActive } from "../../appState";
+
 import * as defaultItems from "./defaultCommandPaletteItems";
 import "./CommandPalette.scss";
 
@@ -79,6 +81,7 @@ import type { CommandPaletteItem } from "./types";
 import type { AppProps, AppState, LibraryItem, UIAppState } from "../../types";
 import type { ShortcutName } from "../../actions/shortcuts";
 import type { TranslationKeys } from "../../i18n";
+
 import type { Action } from "../../actions/types";
 
 const lastUsedPaletteItem = atom<CommandPaletteItem | null>(null);
@@ -679,7 +682,7 @@ function CommandPaletteInner({
 
   const isCommandAvailable = useStableCallback(
     (command: CommandPaletteItem) => {
-      if (command.viewMode === false && uiAppState.viewModeEnabled) {
+      if (command.viewMode === false && isViewModeActive(uiAppState)) {
         return false;
       }
 

@@ -2,10 +2,16 @@ import React from "react";
 
 import { composeEventHandlers } from "@excalidraw/common";
 
+import clsx from "clsx";
+
 import { useTunnels } from "../../context/tunnels";
 import { useUIAppState } from "../../context/ui-appState";
 import { t } from "../../i18n";
-import { useEditorInterface, useExcalidrawSetAppState } from "../App";
+import {
+  useAppProps,
+  useEditorInterface,
+  useExcalidrawSetAppState,
+} from "../App";
 import { UserList } from "../UserList";
 import DropdownMenu from "../dropdownMenu/DropdownMenu";
 import { withInternalFallback } from "../hoc/withInternalFallback";
@@ -29,6 +35,7 @@ const MainMenu = Object.assign(
       const { MainMenuTunnel } = useTunnels();
       const editorInterface = useEditorInterface();
       const appState = useUIAppState();
+      const appProps = useAppProps();
       const setAppState = useExcalidrawSetAppState();
 
       return (
@@ -53,11 +60,11 @@ const MainMenu = Object.assign(
                 setAppState({ openMenu: null });
               })}
               placement="bottom"
-              className={
-                editorInterface.formFactor === "phone"
-                  ? "main-menu-dropdown"
-                  : ""
-              }
+              className={clsx({
+                "main-menu-dropdown": editorInterface.formFactor === "phone",
+                "dropdown-menu-align-bottom":
+                  appProps.UIOptions.swapTopMenuAndFooter,
+              })}
             >
               {children}
               {editorInterface.formFactor === "phone" &&

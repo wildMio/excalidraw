@@ -7,6 +7,8 @@ import { t } from "../i18n";
 import { calculateScrollCenter } from "../scene";
 import { SCROLLBAR_WIDTH, SCROLLBAR_MARGIN } from "../scene/scrollbars";
 
+import { isViewModeActive } from "../appState";
+
 import { ExitViewModeButton, MobileShapeActions } from "./Actions";
 import { MobileToolBar } from "./MobileToolBar";
 import { FixedSideContainer } from "./FixedSideContainer";
@@ -14,6 +16,8 @@ import { FixedSideContainer } from "./FixedSideContainer";
 import { Island } from "./Island";
 
 import { PenModeButton } from "./PenModeButton";
+
+import { EyeButton } from "./EyeButton";
 
 import type { ActionManager } from "../actions/manager";
 import type {
@@ -33,6 +37,7 @@ type MobileMenuProps = {
   elements: readonly NonDeletedExcalidrawElement[];
   onHandToolToggle: () => void;
   onPenModeToggle: AppClassProperties["togglePenMode"];
+  onEyeButtonClick?: () => void;
 
   renderTopRightUI?: (
     isMobile: boolean,
@@ -61,6 +66,7 @@ export const MobileMenu = ({
   UIOptions,
   app,
   onPenModeToggle,
+  onEyeButtonClick,
 }: MobileMenuProps) => {
   const {
     WelcomeScreenCenterTunnel,
@@ -74,8 +80,14 @@ export const MobileMenu = ({
 
     const topRightUI = (
       <div className="excalidraw-ui-top-right">
+        {UIOptions.hideAnnotationsControlEnabled && (
+          <EyeButton
+            status={appState.hideAnnotations ? "off" : "on"}
+            onClick={onEyeButtonClick}
+          />
+        )}
         {renderTopRightUI?.(true, appState) ??
-          (!appState.viewModeEnabled && (
+          (!isViewModeActive(appState) && (
             <>
               <PenModeButton
                 checked={appState.penMode}
@@ -96,7 +108,7 @@ export const MobileMenu = ({
     const topLeftUI = (
       <div className="excalidraw-ui-top-left">
         {renderTopLeftUI?.(true, appState)}
-        <MainMenuTunnel.Out />
+        {app.props.UIOptions.topLeftMenuEnabled && <MainMenuTunnel.Out />}
       </div>
     );
 
@@ -134,7 +146,7 @@ export const MobileMenu = ({
         {renderWelcomeScreen && <WelcomeScreenCenterTunnel.Out />}
       </div>
 
-      {!appState.viewModeEnabled && (
+      {!isViewModeActive(appState) && (
         <div
           className="App-bottom-bar"
           style={{
@@ -150,7 +162,7 @@ export const MobileMenu = ({
           />
 
           <Island className="App-toolbar">
-            {!appState.viewModeEnabled &&
+            {!isViewModeActive(appState) &&
               appState.openDialog?.name !== "elementLinkSelector" &&
               renderToolbar()}
             {appState.scrolledOutside &&

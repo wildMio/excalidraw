@@ -336,6 +336,7 @@ import {
   getDefaultAppState,
   isEraserActive,
   isHandToolActive,
+  isViewModeActive,
 } from "../appState";
 import {
   copyTextToSystemClipboard,
@@ -680,6 +681,8 @@ class App extends React.Component<AppProps, AppState> {
     [scrollX: number, scrollY: number, zoom: AppState["zoom"]]
   >();
 
+  onHideAnnotationsChangeEmitter = new Emitter<[hideAnnotations: boolean]>();
+
   missingPointerEventCleanupEmitter = new Emitter<
     [event: PointerEvent | null]
   >();
@@ -690,6 +693,7 @@ class App extends React.Component<AppProps, AppState> {
     const defaultAppState = getDefaultAppState();
     const {
       excalidrawAPI,
+      hideAnnotations = false,
       viewModeEnabled = false,
       zenModeEnabled = false,
       gridModeEnabled = false,
@@ -702,6 +706,7 @@ class App extends React.Component<AppProps, AppState> {
       theme,
       isLoading: true,
       ...this.getCanvasOffsets(),
+      hideAnnotations,
       viewModeEnabled,
       zenModeEnabled,
       objectsSnapModeEnabled,
@@ -769,6 +774,8 @@ class App extends React.Component<AppProps, AppState> {
         onPointerUp: (cb) => this.onPointerUpEmitter.on(cb),
         onScrollChange: (cb) => this.onScrollChangeEmitter.on(cb),
         onUserFollow: (cb) => this.onUserFollowEmitter.on(cb),
+        onHideAnnotationsChange: (cb) =>
+          this.onHideAnnotationsChangeEmitter.on(cb),
       } as const;
       if (typeof excalidrawAPI === "function") {
         excalidrawAPI(api);
@@ -1701,7 +1708,11 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     const isDarkTheme = this.state.theme === THEME.DARK;
-    const nonDeletedFramesLikes = this.scene.getNonDeletedFramesLikes();
+    const nonDeletedFramesLikes = this.state.hideAnnotations
+      ? this.scene
+          .getNonDeletedFramesLikes()
+          .filter((f) => f.customData?.alwaysVisible === true)
+      : this.scene.getNonDeletedFramesLikes();
 
     const focusedSearchMatch =
       nonDeletedFramesLikes.length > 0
@@ -1878,6 +1889,7 @@ class App extends React.Component<AppProps, AppState> {
         width: this.state.width,
         editingTextElement: this.state.editingTextElement,
         newElementId: this.state.newElement?.id,
+        hideAnnotations: this.state.hideAnnotations,
       });
     this.visibleElements = visibleElements;
 
@@ -1906,7 +1918,7 @@ class App extends React.Component<AppProps, AppState> {
         translate="no"
         className={clsx("excalidraw excalidraw-container notranslate", {
           "excalidraw--view-mode":
-            this.state.viewModeEnabled ||
+            isViewModeActive(this.state) ||
             this.state.openDialog?.name === "elementLinkSelector",
           "excalidraw--mobile": this.editorInterface.formFactor === "phone",
         })}
@@ -3068,7 +3080,7 @@ class App extends React.Component<AppProps, AppState> {
       ),
     );
 
-    if (this.state.viewModeEnabled) {
+    if (isViewModeActive(this.state)) {
       return;
     }
 
@@ -3156,6 +3168,11 @@ class App extends React.Component<AppProps, AppState> {
       );
     }
 
+    if (prevState.hideAnnotations !== this.state.hideAnnotations) {
+      this.props?.onHideAnnotationsChange?.(this.state.hideAnnotations);
+      this.onHideAnnotationsChangeEmitter.trigger(this.state.hideAnnotations);
+    }
+
     if (prevState.userToFollow !== this.state.userToFollow) {
       if (prevState.userToFollow) {
         this.onUserFollowEmitter.trigger({
@@ -3207,7 +3224,14 @@ class App extends React.Component<AppProps, AppState> {
       this.setState({ viewModeEnabled: !!this.props.viewModeEnabled });
     }
 
-    if (prevState.viewModeEnabled !== this.state.viewModeEnabled) {
+    if (prevProps.hideAnnotations !== this.props.hideAnnotations) {
+      this.setState({ hideAnnotations: !!this.props.hideAnnotations });
+    }
+
+    if (
+      prevState.viewModeEnabled !== this.state.viewModeEnabled ||
+      prevState.hideAnnotations !== this.state.hideAnnotations
+    ) {
       this.addEventListeners();
       this.deselectElements();
     }
@@ -4413,9 +4437,17 @@ class App extends React.Component<AppProps, AppState> {
   );
 
   public getEditorUIOffsets = (): Offsets => {
+    const isMobile = this.editorInterface.formFactor === "phone";
+
+    const toolBarSelector = isMobile
+      ? ".App-toolbar-content"
+      : this.props.UIOptions.swapTopMenuAndFooter
+      ? ".App-menu_bottom"
+      : ".App-toolbar";
+
     const toolbarBottom =
       this.excalidrawContainerRef?.current
-        ?.querySelector(".App-toolbar")
+        ?.querySelector(toolBarSelector)
         ?.getBoundingClientRect()?.bottom ?? 0;
     const sidebarRect = this.excalidrawContainerRef?.current
       ?.querySelector(".sidebar")
@@ -4745,7 +4777,7 @@ class App extends React.Component<AppProps, AppState> {
         return;
       }
 
-      if (this.state.viewModeEnabled) {
+      if (isViewModeActive(this.state)) {
         return;
       }
 
@@ -5010,7 +5042,7 @@ class App extends React.Component<AppProps, AppState> {
   private onKeyUp = withBatchedUpdates((event: KeyboardEvent) => {
     if (event.key === KEYS.SPACE) {
       if (
-        this.state.viewModeEnabled ||
+        isViewModeActive(this.state) ||
         this.state.openDialog?.name === "elementLinkSelector"
       ) {
         setCursor(this.interactiveCanvas, CURSOR_TYPE.GRAB);
@@ -6030,7 +6062,7 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     resetCursor(this.interactiveCanvas);
-    if (!event[KEYS.CTRL_OR_CMD] && !this.state.viewModeEnabled) {
+    if (!event[KEYS.CTRL_OR_CMD] && !isViewModeActive(this.state)) {
       const hitElement = this.getElementAtPosition(sceneX, sceneY);
 
       if (isIframeLikeElement(hitElement)) {
@@ -6719,7 +6751,7 @@ class App extends React.Component<AppProps, AppState> {
           this.interactiveCanvas,
           isTextElement(hitElement) ? CURSOR_TYPE.TEXT : CURSOR_TYPE.CROSSHAIR,
         );
-      } else if (this.state.viewModeEnabled) {
+      } else if (isViewModeActive(this.state)) {
         setCursor(this.interactiveCanvas, CURSOR_TYPE.GRAB);
       } else if (this.state.openDialog?.name === "elementLinkSelector") {
         setCursor(this.interactiveCanvas, CURSOR_TYPE.AUTO);
@@ -7355,7 +7387,10 @@ class App extends React.Component<AppProps, AppState> {
       onPointerUp(_event || event.nativeEvent),
     );
 
-    if (!this.state.viewModeEnabled || this.state.activeTool.type === "laser") {
+    if (
+      !isViewModeActive(this.state) ||
+      this.state.activeTool.type === "laser"
+    ) {
       window.addEventListener(EVENT.POINTER_MOVE, onPointerMove);
       window.addEventListener(EVENT.POINTER_UP, onPointerUp);
       window.addEventListener(EVENT.KEYDOWN, onKeyDown);
@@ -7440,7 +7475,7 @@ class App extends React.Component<AppProps, AppState> {
       } else {
         this.redirectToLink(event, this.editorInterface.isTouchScreen);
       }
-    } else if (this.state.viewModeEnabled) {
+    } else if (isViewModeActive(this.state)) {
       this.setState({
         activeEmbeddable: null,
         selectedElementIds: {},
@@ -7499,7 +7534,7 @@ class App extends React.Component<AppProps, AppState> {
         (event.button === POINTER_BUTTON.WHEEL ||
           (event.button === POINTER_BUTTON.MAIN && isHoldingSpace) ||
           isHandToolActive(this.state) ||
-          this.state.viewModeEnabled)
+          isViewModeActive(this.state))
       )
     ) {
       return false;
@@ -7577,7 +7612,7 @@ class App extends React.Component<AppProps, AppState> {
         lastPointerUp = null;
         isPanning = false;
         if (!isHoldingSpace) {
-          if (this.state.viewModeEnabled) {
+          if (isViewModeActive(this.state)) {
             setCursor(this.interactiveCanvas, CURSOR_TYPE.GRAB);
           } else {
             setCursorForShape(this.interactiveCanvas, this.state);
@@ -11824,7 +11859,7 @@ class App extends React.Component<AppProps, AppState> {
     // -------------------------------------------------------------------------
 
     if (type === "canvas") {
-      if (this.state.viewModeEnabled) {
+      if (isViewModeActive(this.state)) {
         return [
           ...options,
           actionToggleGridMode,
@@ -11857,9 +11892,13 @@ class App extends React.Component<AppProps, AppState> {
 
     options.push(copyText);
 
-    if (this.state.viewModeEnabled) {
+    if (isViewModeActive(this.state)) {
       return [actionCopy, ...options];
     }
+
+    const libraryActions: ContextMenuItems = this.props.UIOptions.libraryEnabled
+      ? [CONTEXT_MENU_SEPARATOR, actionAddToLibrary]
+      : [];
 
     const zIndexActions: ContextMenuItems =
       this.editorInterface.formFactor === "desktop"
@@ -11895,8 +11934,7 @@ class App extends React.Component<AppProps, AppState> {
       actionBindText,
       actionWrapTextInContainer,
       actionUngroup,
-      CONTEXT_MENU_SEPARATOR,
-      actionAddToLibrary,
+      ...libraryActions,
       ...zIndexActions,
       CONTEXT_MENU_SEPARATOR,
       actionFlipHorizontal,

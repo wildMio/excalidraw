@@ -11,6 +11,8 @@ import {
 
 import { isNodeInFlowchart } from "@excalidraw/element";
 
+import clsx from "clsx";
+
 import type { EditorInterface } from "@excalidraw/common";
 
 import { t } from "../i18n";
@@ -267,7 +269,11 @@ export const HintViewer = ({
   });
 
   return (
-    <div className="HintViewer">
+    <div
+      className={clsx("HintViewer", {
+        "HintViewer--align-bottom": app.props.UIOptions.swapTopMenuAndFooter,
+      })}
+    >
       <span>{hintJSX}</span>
     </div>
   );

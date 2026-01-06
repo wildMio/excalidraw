@@ -38,6 +38,13 @@ $wide-viewport-width: 1000px;
       padding: 1px 3px;
       font-size: 10px;
     }
+
+    &.HintViewer--align-bottom {
+      top: auto;
+      bottom: 100%;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
   }
 
   &.theme--dark {

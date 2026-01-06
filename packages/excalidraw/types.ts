@@ -182,6 +182,7 @@ type _CommonCanvasAppState = {
   scrollY: AppState["scrollY"];
   width: AppState["width"];
   height: AppState["height"];
+  hideAnnotations: AppState["hideAnnotations"];
   viewModeEnabled: AppState["viewModeEnabled"];
   openDialog: AppState["openDialog"];
   editingGroupId: AppState["editingGroupId"]; // TODO: move to interactive canvas if possible
@@ -400,6 +401,8 @@ export interface AppState {
   gridModeEnabled: boolean;
   viewModeEnabled: boolean;
 
+  hideAnnotations: boolean;
+
   /** top-most selected groups (i.e. does not include nested groups) */
   selectedGroupIds: { [groupId: string]: boolean };
   /** group being edited when you drill down to its constituent element
@@ -585,6 +588,7 @@ export interface ExcalidrawProps {
     appState: UIAppState,
   ) => JSX.Element | null;
   langCode?: Language["code"];
+  hideAnnotations?: boolean;
   viewModeEnabled?: boolean;
   zenModeEnabled?: boolean;
   gridModeEnabled?: boolean;
@@ -627,6 +631,7 @@ export interface ExcalidrawProps {
     | RegExp
     | RegExp[]
     | ((link: string) => boolean | undefined);
+  onHideAnnotationsChange?: (hideAnnotations: boolean) => void;
   renderEmbeddable?: (
     element: NonDeleted<ExcalidrawEmbeddableElement>,
     appState: AppState,
@@ -684,6 +689,27 @@ export type UIOptions = Partial<{
    */
   formFactor?: EditorInterface["formFactor"];
   desktopUIMode?: EditorInterface["desktopUIMode"];
+  toolBar?: {
+    lockEnabled?: boolean;
+    moreToolsEnabled?: boolean;
+    hintViewerEnabled?: boolean;
+  };
+  topLeftMenuEnabled?: boolean;
+  libraryEnabled?: boolean;
+  footer?: {
+    helpEnabled?: boolean;
+  };
+  fontPicker?: {
+    familyChangeEnabled?: boolean;
+  };
+  shapeControl?: {
+    sloppinessChangeEnabled?: boolean;
+  };
+  viewModeControlEnabled?: boolean;
+  hideAnnotationsControlEnabled?: boolean;
+  undoRedoPosition: "footer" | "toolbar";
+  swapTopMenuAndFooter?: boolean;
+
   /** @deprecated does nothing. Will be removed in 0.15 */
   welcomeScreen?: boolean;
 }>;
@@ -893,6 +919,10 @@ export interface ExcalidrawImperativeAPI {
   ) => UnsubscribeCallback;
   onUserFollow: (
     callback: (payload: OnUserFollowedPayload) => void,
+  ) => UnsubscribeCallback;
+
+  onHideAnnotationsChange: (
+    callback: (hideAnnotations: boolean) => void,
   ) => UnsubscribeCallback;
 }
 

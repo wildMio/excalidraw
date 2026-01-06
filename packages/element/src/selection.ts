@@ -21,6 +21,8 @@ import {
 import { LinearElementEditor } from "./linearElementEditor";
 import { selectGroupsForSelectedElements } from "./groups";
 
+import { isGhostElement } from "./utils";
+
 import type {
   ElementsMap,
   ElementsMapOrArray,
@@ -65,6 +67,10 @@ export const getElementsWithinSelection = (
     getElementAbsoluteCoords(selection, elementsMap);
 
   let elementsInSelection = elements.filter((element) => {
+    if (isGhostElement(element)) {
+      return false;
+    }
+
     let [elementX1, elementY1, elementX2, elementY2] = getElementBounds(
       element,
       elementsMap,

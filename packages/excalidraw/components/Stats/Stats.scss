@@ -6,6 +6,11 @@
   z-index: var(--zIndex-layerUI);
   pointer-events: var(--ui-pointerEvents);
 
+  &.exc-stats-align-bottom {
+    top: auto;
+    bottom: 60px;
+  }
+
   :root[dir="rtl"] & {
     left: 12px;
     right: initial;

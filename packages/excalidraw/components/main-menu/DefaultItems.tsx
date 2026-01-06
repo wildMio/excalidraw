@@ -4,6 +4,8 @@ import { THEME } from "@excalidraw/common";
 
 import type { Theme } from "@excalidraw/element/types";
 
+import { isViewModeActive } from "../../appState";
+
 import {
   actionClearCanvas,
   actionLoadScene,
@@ -300,7 +302,7 @@ export const ChangeCanvasBackground = () => {
   const appProps = useAppProps();
 
   if (
-    appState.viewModeEnabled ||
+    isViewModeActive(appState) ||
     !appProps.UIOptions.canvasActions.changeViewBackgroundColor
   ) {
     return null;

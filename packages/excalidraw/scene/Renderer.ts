@@ -108,6 +108,8 @@ export class Renderer {
         newElementId,
         // cache-invalidation nonce
         sceneNonce: _sceneNonce,
+
+        hideAnnotations,
       }: {
         zoom: AppState["zoom"];
         offsetLeft: AppState["offsetLeft"];
@@ -121,11 +123,17 @@ export class Renderer {
          * (we'd have to prefilter elements outside of this function) */
         newElementId: ExcalidrawElement["id"] | undefined;
         sceneNonce: ReturnType<InstanceType<typeof Scene>["getSceneNonce"]>;
+
+        hideAnnotations: AppState["hideAnnotations"];
       }) => {
         const elements = this.scene.getNonDeletedElements();
 
+        const filteredElements = hideAnnotations
+          ? elements.filter((el) => el.customData?.alwaysVisible === true)
+          : elements;
+
         const elementsMap = getRenderableElements({
-          elements,
+          elements: filteredElements,
           editingTextElement,
           newElementId,
         });

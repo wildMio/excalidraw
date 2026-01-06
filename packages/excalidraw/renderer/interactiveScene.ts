@@ -64,6 +64,8 @@ import type {
   NonDeletedSceneElementsMap,
 } from "@excalidraw/element/types";
 
+import { isViewModeActive } from "../appState";
+
 import { renderSnaps } from "../renderer/renderSnaps";
 import { roundRect } from "../renderer/roundRect";
 import {
@@ -1419,7 +1421,7 @@ const _renderInteractiveScene = ({
         getOmitSidesForEditorInterface(editorInterface),
       );
       if (
-        !appState.viewModeEnabled &&
+        !isViewModeActive(appState) &&
         showBoundingBox &&
         // do not show transform handles when text is being edited
         !isTextElement(appState.editingTextElement) &&

@@ -183,7 +183,11 @@ export const StatsInner = memo(
     }, [selectedElements]);
 
     return (
-      <div className="exc-stats">
+      <div
+        className={clsx("exc-stats", {
+          "exc-stats-align-bottom": app.props.UIOptions.swapTopMenuAndFooter,
+        })}
+      >
         <Island padding={3}>
           <div className="title">
             <h2>{t("stats.title")}</h2>

@@ -1,3 +1,4 @@
+import { isViewModeActive } from "../../appState";
 import { actionLoadScene, actionShortcuts } from "../../actions";
 import { getShortcutFromShortcutName } from "../../actions/shortcuts";
 import { useTunnels } from "../../context/tunnels";
@@ -151,7 +152,7 @@ const MenuItemLoadScene = () => {
   const appState = useUIAppState();
   const actionManager = useExcalidrawActionManager();
 
-  if (appState.viewModeEnabled) {
+  if (isViewModeActive(appState)) {
     return null;
   }
 

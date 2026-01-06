@@ -9,7 +9,7 @@ export const showSelectedShapeActions = (
   elements: readonly NonDeletedExcalidrawElement[],
 ) =>
   Boolean(
-    !appState.viewModeEnabled &&
+    !(appState.viewModeEnabled || appState.hideAnnotations) &&
       appState.openDialog?.name !== "elementLinkSelector" &&
       ((appState.activeTool.type !== "custom" &&
         (appState.editingTextElement ||

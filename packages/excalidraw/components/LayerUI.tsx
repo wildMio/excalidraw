@@ -20,7 +20,7 @@ import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
 
 import { actionToggleStats } from "../actions";
 import { trackEvent } from "../analytics";
-import { isHandToolActive } from "../appState";
+import { isHandToolActive, isViewModeActive } from "../appState";
 import { TunnelsContext, useInitializeTunnels } from "../context/tunnels";
 import { UIAppStateContext } from "../context/ui-appState";
 import { useAtom, useAtomValue } from "../editor-jotai";
@@ -32,6 +32,7 @@ import {
   SelectedShapeActions,
   ShapesSwitcher,
   CompactShapeActions,
+  UndoRedoActions,
 } from "./Actions";
 import { LoadingMessage } from "./LoadingMessage";
 import { LockButton } from "./LockButton";
@@ -227,7 +228,12 @@ const LayerUI = ({
   };
 
   const renderCanvasActions = () => (
-    <div style={{ position: "relative" }}>
+    <div
+      style={{ position: "relative" }}
+      className={clsx({
+        "order-1": app.props.UIOptions.swapTopMenuAndFooter,
+      })}
+    >
       {/* wrapping to Fragment stops React from occasionally complaining
                 about identical Keys */}
       <tunnels.MainMenuTunnel.Out />
@@ -243,6 +249,7 @@ const LayerUI = ({
         heading="selectedShapeActions"
         className={clsx("selected-shape-actions zen-mode-transition", {
           "transition-left": appState.zenModeEnabled,
+          relative: app.props.UIOptions.swapTopMenuAndFooter,
         })}
       >
         {isCompactMode ? (
@@ -265,7 +272,9 @@ const LayerUI = ({
           </Island>
         ) : (
           <Island
-            className={CLASSES.SHAPE_ACTIONS_MENU}
+            className={clsx(CLASSES.SHAPE_ACTIONS_MENU, {
+              "bottom-0": app.props.UIOptions.swapTopMenuAndFooter,
+            })}
             padding={2}
             style={{
               // we want to make sure this doesn't overflow so subtracting the
@@ -294,17 +303,22 @@ const LayerUI = ({
     const shouldShowStats =
       appState.stats.open &&
       !appState.zenModeEnabled &&
-      !appState.viewModeEnabled &&
+      !isViewModeActive(appState) &&
       appState.openDialog?.name !== "elementLinkSelector";
 
     return (
       <FixedSideContainer side="top">
-        <div className="App-menu App-menu_top">
+        <div
+          className={clsx("App-menu App-menu_top", {
+            "layer-ui__wrapper__menu--bottom":
+              app.props.UIOptions.swapTopMenuAndFooter,
+          })}
+        >
           <Stack.Col
             gap={spacing.menuTopGap}
             className={clsx("App-menu_top__left")}
           >
-            {renderCanvasActions()}
+            {app.props.UIOptions.topLeftMenuEnabled && renderCanvasActions()}
             <div
               className={clsx("selected-shape-actions-container", {
                 "selected-shape-actions-container--compact":
@@ -314,89 +328,111 @@ const LayerUI = ({
               {shouldRenderSelectedShapeActions && renderSelectedShapeActions()}
             </div>
           </Stack.Col>
-          {!appState.viewModeEnabled &&
+
+          {!isViewModeActive(appState) &&
             appState.openDialog?.name !== "elementLinkSelector" && (
               <Section heading="shapes" className="shapes-section">
                 {(heading: React.ReactNode) => (
-                  <div style={{ position: "relative" }}>
-                    {renderWelcomeScreen && (
-                      <tunnels.WelcomeScreenToolbarHintTunnel.Out />
-                    )}
-                    <Stack.Col gap={spacing.toolbarColGap} align="start">
-                      <Stack.Row
-                        gap={spacing.toolbarRowGap}
-                        className={clsx("App-toolbar-container", {
-                          "zen-mode": appState.zenModeEnabled,
-                        })}
-                      >
-                        <Island
-                          padding={spacing.islandPadding}
-                          className={clsx("App-toolbar", {
+                  <>
+                    <div style={{ position: "relative" }}>
+                      {renderWelcomeScreen && (
+                        <tunnels.WelcomeScreenToolbarHintTunnel.Out />
+                      )}
+                      <Stack.Col gap={spacing.toolbarColGap} align="start">
+                        <Stack.Row
+                          gap={spacing.toolbarRowGap}
+                          className={clsx("App-toolbar-container", {
                             "zen-mode": appState.zenModeEnabled,
-                            "App-toolbar--compact": isCompactStylesPanel,
                           })}
                         >
-                          <HintViewer
-                            appState={appState}
-                            isMobile={editorInterface.formFactor === "phone"}
-                            editorInterface={editorInterface}
-                            app={app}
-                          />
-                          {heading}
-                          <Stack.Row gap={spacing.toolbarInnerRowGap}>
-                            <PenModeButton
-                              zenModeEnabled={appState.zenModeEnabled}
-                              checked={appState.penMode}
-                              onChange={() => onPenModeToggle(null)}
-                              title={t("toolBar.penMode")}
-                              penDetected={appState.penDetected}
-                            />
-                            <LockButton
-                              checked={appState.activeTool.locked}
-                              onChange={onLockToggle}
-                              title={t("toolBar.lock")}
-                            />
-
-                            <div className="App-toolbar__divider" />
-
-                            <HandButton
-                              checked={isHandToolActive(appState)}
-                              onChange={() => onHandToolToggle()}
-                              title={t("toolBar.hand")}
-                              isMobile
-                            />
-
-                            <ShapesSwitcher
-                              setAppState={setAppState}
-                              activeTool={appState.activeTool}
-                              UIOptions={UIOptions}
-                              app={app}
-                            />
-                          </Stack.Row>
-                        </Island>
-                        {isCollaborating && (
                           <Island
-                            style={{
-                              marginLeft: spacing.collabMarginLeft,
-                              alignSelf: "center",
-                              height: "fit-content",
-                            }}
+                            padding={spacing.islandPadding}
+                            className={clsx("App-toolbar", {
+                              "zen-mode": appState.zenModeEnabled,
+                              "App-toolbar--compact": isCompactStylesPanel,
+                            })}
                           >
-                            <LaserPointerButton
-                              title={t("toolBar.laser")}
-                              checked={
-                                appState.activeTool.type === TOOL_TYPE.laser
-                              }
-                              onChange={() =>
-                                app.setActiveTool({ type: TOOL_TYPE.laser })
-                              }
-                              isMobile
-                            />
+                            {app.props.UIOptions.toolBar?.hintViewerEnabled && (
+                              <HintViewer
+                                appState={appState}
+                                isMobile={
+                                  editorInterface.formFactor === "phone"
+                                }
+                                editorInterface={editorInterface}
+                                app={app}
+                              />
+                            )}
+                            {heading}
+                            <Stack.Row gap={spacing.toolbarInnerRowGap}>
+                              <PenModeButton
+                                zenModeEnabled={appState.zenModeEnabled}
+                                checked={appState.penMode}
+                                onChange={() => onPenModeToggle(null)}
+                                title={t("toolBar.penMode")}
+                                penDetected={appState.penDetected}
+                              />
+                              {app.props.UIOptions.toolBar?.lockEnabled && (
+                                <LockButton
+                                  checked={appState.activeTool.locked}
+                                  onChange={onLockToggle}
+                                  title={t("toolBar.lock")}
+                                />
+                              )}
+
+                              {(appState.penDetected ||
+                                app.props.UIOptions.toolBar?.lockEnabled) && (
+                                <div className="App-toolbar__divider" />
+                              )}
+
+                              <HandButton
+                                checked={isHandToolActive(appState)}
+                                onChange={() => onHandToolToggle()}
+                                title={t("toolBar.hand")}
+                                isMobile
+                              />
+
+                              <ShapesSwitcher
+                                setAppState={setAppState}
+                                activeTool={appState.activeTool}
+                                UIOptions={UIOptions}
+                                app={app}
+                              />
+                            </Stack.Row>
                           </Island>
-                        )}
-                      </Stack.Row>
-                    </Stack.Col>
-                  </div>
+                          {isCollaborating && (
+                            <Island
+                              style={{
+                                marginLeft: spacing.collabMarginLeft,
+                                alignSelf: "center",
+                                height: "fit-content",
+                              }}
+                            >
+                              <LaserPointerButton
+                                title={t("toolBar.laser")}
+                                checked={
+                                  appState.activeTool.type === TOOL_TYPE.laser
+                                }
+                                onChange={() =>
+                                  app.setActiveTool({ type: TOOL_TYPE.laser })
+                                }
+                                isMobile
+                              />
+                            </Island>
+                          )}
+                        </Stack.Row>
+                      </Stack.Col>
+                    </div>
+
+                    {app.props.UIOptions.undoRedoPosition === "toolbar" && (
+                      <UndoRedoActions
+                        renderAction={actionManager.renderAction}
+                        className={clsx("zen-mode-transition", {
+                          "layer-ui__wrapper__footer-left--transition-bottom":
+                            appState.zenModeEnabled,
+                        })}
+                      />
+                    )}
+                  </>
                 )}
               </Section>
             )}
@@ -419,7 +455,7 @@ const LayerUI = ({
               editorInterface.formFactor === "phone",
               appState,
             )}
-            {!appState.viewModeEnabled &&
+            {!isViewModeActive(appState) &&
               appState.openDialog?.name !== "elementLinkSelector" &&
               // hide button when sidebar docked
               (!isSidebarDocked ||
@@ -470,23 +506,25 @@ const LayerUI = ({
           tunneled away. We only render tunneled components that actually
         have defaults when host do not render anything. */}
       <DefaultMainMenu UIOptions={UIOptions} />
-      <DefaultSidebar.Trigger
-        __fallback
-        icon={sidebarRightIcon}
-        title={capitalizeString(t("toolBar.library"))}
-        onToggle={(open) => {
-          if (open) {
-            trackEvent(
-              "sidebar",
-              `${DEFAULT_SIDEBAR.name} (open)`,
-              `button (${
-                editorInterface.formFactor === "phone" ? "mobile" : "desktop"
-              })`,
-            );
-          }
-        }}
-        tab={DEFAULT_SIDEBAR.defaultTab}
-      />
+      {app.props.UIOptions.libraryEnabled && (
+        <DefaultSidebar.Trigger
+          __fallback
+          icon={sidebarRightIcon}
+          title={capitalizeString(t("toolBar.library"))}
+          onToggle={(open) => {
+            if (open) {
+              trackEvent(
+                "sidebar",
+                `${DEFAULT_SIDEBAR.name} (open)`,
+                `button (${
+                  editorInterface.formFactor === "phone" ? "mobile" : "desktop"
+                })`,
+              );
+            }
+          }}
+          tab={DEFAULT_SIDEBAR.defaultTab}
+        />
+      )}
       <DefaultOverwriteConfirmDialog />
       {appState.openDialog?.name === "ttd" && <TTDDialog __fallback />}
       {/* ------------------------------------------------------------------ */}
@@ -592,6 +630,11 @@ const LayerUI = ({
           renderSidebars={renderSidebars}
           renderWelcomeScreen={renderWelcomeScreen}
           UIOptions={UIOptions}
+          onEyeButtonClick={() =>
+            setAppState((appState) => ({
+              hideAnnotations: !appState.hideAnnotations,
+            }))
+          }
         />
       )}
       {editorInterface.formFactor !== "phone" && (
@@ -613,6 +656,17 @@ const LayerUI = ({
               actionManager={actionManager}
               showExitZenModeBtn={showExitZenModeBtn}
               renderWelcomeScreen={renderWelcomeScreen}
+              helpEnabled={app.props.UIOptions.footer?.helpEnabled}
+              showUndoRedo={app.props.UIOptions.undoRedoPosition === "footer"}
+              isTopAligned={app.props.UIOptions.swapTopMenuAndFooter}
+              hideAnnotationsControlEnabled={
+                app.props.UIOptions.hideAnnotationsControlEnabled
+              }
+              onEyeButtonClick={() =>
+                setAppState((appState) => ({
+                  hideAnnotations: !appState.hideAnnotations,
+                }))
+              }
             />
             {appState.scrolledOutside && (
               <button

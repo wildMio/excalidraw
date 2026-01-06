@@ -326,6 +326,26 @@ export const DEFAULT_UI_OPTIONS: AppProps["UIOptions"] = {
   tools: {
     image: true,
   },
+  toolBar: {
+    lockEnabled: true,
+    moreToolsEnabled: true,
+    hintViewerEnabled: true,
+  },
+  topLeftMenuEnabled: true,
+  libraryEnabled: true,
+  footer: {
+    helpEnabled: true,
+  },
+  fontPicker: {
+    familyChangeEnabled: true,
+  },
+  shapeControl: {
+    sloppinessChangeEnabled: true,
+  },
+  viewModeControlEnabled: true,
+  hideAnnotationsControlEnabled: false,
+  undoRedoPosition: "footer",
+  swapTopMenuAndFooter: false,
 };
 
 export const MAX_DECIMALS_FOR_SVG_EXPORT = 2;

@@ -40,6 +40,7 @@ import { trackEvent } from "../../analytics";
 import { getTooltipDiv, updateTooltipPosition } from "../../components/Tooltip";
 
 import { t } from "../../i18n";
+import { isViewModeActive } from "../../appState";
 
 import { useAppProps, useEditorInterface, useExcalidrawAppState } from "../App";
 import { ToolButton } from "../ToolButton";
@@ -243,7 +244,7 @@ export const Hyperlink = ({
     appState.resizingElement ||
     appState.isRotating ||
     appState.openMenu ||
-    appState.viewModeEnabled
+    isViewModeActive(appState)
   ) {
     return null;
   }

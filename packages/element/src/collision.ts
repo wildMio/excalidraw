@@ -27,7 +27,7 @@ import type {
 
 import type { FrameNameBounds } from "@excalidraw/excalidraw/types";
 
-import { isPathALoop } from "./utils";
+import { isGhostElement, isPathALoop } from "./utils";
 import {
   doBoundsIntersect,
   elementCenterPoint,
@@ -113,6 +113,10 @@ export const hitElementItself = ({
   frameNameBound = null,
   overrideShouldTestInside = false,
 }: HitTestArgs) => {
+  if (isGhostElement(element)) {
+    return false;
+  }
+
   // Hit test against a frame's name
   const hitFrameName = frameNameBound
     ? isPointWithinBounds(
