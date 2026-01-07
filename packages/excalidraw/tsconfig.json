@@ -1,7 +1,20 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist/types"
+    "baseUrl": ".",
+    "outDir": "./dist/types",
+    "paths": {
+      "@excalidraw/common": ["../common/src"],
+      "@excalidraw/common/*": ["../common/src/*"],
+      "@excalidraw/element": ["../element/src"],
+      "@excalidraw/element/*": ["../element/src/*"],
+      "@excalidraw/math": ["../math/src"],
+      "@excalidraw/math/*": ["../math/src/*"],
+      "@excalidraw/utils": ["../utils/src"],
+      "@excalidraw/utils/*": ["../utils/src/*"],
+      "@excalidraw/excalidraw": ["./index.tsx"],
+      "@excalidraw/excalidraw/*": ["./*"]
+    }
   },
   "include": ["**/*"],
   "exclude": ["**/*.test.*", "tests", "types", "examples", "dist"]
