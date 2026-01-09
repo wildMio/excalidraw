@@ -43,6 +43,10 @@ import { NunitoFontFaces } from "./Nunito";
 import { VirgilFontFaces } from "./Virgil";
 import { XiaolaiFontFaces } from "./Xiaolai";
 
+export type LoadableFontFamilyKeys =
+  | keyof typeof FONT_FAMILY
+  | keyof typeof FONT_FAMILY_FALLBACKS;
+
 export class Fonts {
   // it's ok to track fonts across multiple instances only once, so let's use
   // a static member to reduce memory footprint
@@ -356,6 +360,11 @@ export class Fonts {
     return this.registered;
   }
 
+  private static onlyLoadFonts: Set<LoadableFontFamilyKeys> | null = null;
+  public static setOnlyLoadFonts(families: LoadableFontFamilyKeys[]) {
+    Fonts.onlyLoadFonts = new Set(families);
+  }
+
   /**
    * WARN: should be called just once on init, even across multiple instances.
    */
@@ -368,9 +377,15 @@ export class Fonts {
     };
 
     const init = (
-      family: keyof typeof FONT_FAMILY | keyof typeof FONT_FAMILY_FALLBACKS,
+      family: LoadableFontFamilyKeys,
       ...fontFacesDescriptors: ExcalidrawFontFaceDescriptor[]
     ) => {
+      if (Fonts.onlyLoadFonts) {
+        if (!Fonts.onlyLoadFonts.has(family)) {
+          return;
+        }
+      }
+
       const fontFamily =
         FONT_FAMILY[family as keyof typeof FONT_FAMILY] ??
         FONT_FAMILY_FALLBACKS[family as keyof typeof FONT_FAMILY_FALLBACKS];

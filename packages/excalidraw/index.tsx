@@ -57,6 +57,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     renderEmbeddable,
     aiEnabled,
     showDeprecatedFonts,
+    onlyLoadFonts,
     renderScrollbars,
   } = props;
 
@@ -184,6 +185,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
           renderEmbeddable={renderEmbeddable}
           aiEnabled={aiEnabled !== false}
           showDeprecatedFonts={showDeprecatedFonts}
+          onlyLoadFonts={onlyLoadFonts}
           renderScrollbars={renderScrollbars}
         >
           {children}

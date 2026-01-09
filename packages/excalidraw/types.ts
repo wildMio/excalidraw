@@ -62,6 +62,7 @@ import type { Language } from "./i18n";
 import type { isOverScrollBars } from "./scene/scrollbars";
 import type React from "react";
 import type { JSX } from "react";
+import type { LoadableFontFamilyKeys } from "./fonts/Fonts";
 
 export type SocketId = string & { _brand: "SocketId" };
 
@@ -639,6 +640,7 @@ export interface ExcalidrawProps {
   aiEnabled?: boolean;
   showDeprecatedFonts?: boolean;
   renderScrollbars?: boolean;
+  onlyLoadFonts?: LoadableFontFamilyKeys[] | null;
 }
 
 export type SceneData = {

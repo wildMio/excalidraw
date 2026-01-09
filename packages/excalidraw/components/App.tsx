@@ -700,6 +700,7 @@ class App extends React.Component<AppProps, AppState> {
       objectsSnapModeEnabled = false,
       theme = defaultAppState.theme,
       name = `${t("labels.untitled")}-${getDateTime()}`,
+      onlyLoadFonts,
     } = props;
     this.state = {
       ...defaultAppState,
@@ -789,6 +790,9 @@ class App extends React.Component<AppProps, AppState> {
       id: this.id,
     };
 
+    if (onlyLoadFonts?.length) {
+      Fonts.setOnlyLoadFonts(onlyLoadFonts);
+    }
     this.fonts = new Fonts(this.scene);
     this.history = new History(this.store);
 
