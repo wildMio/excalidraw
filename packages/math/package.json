@@ -1,6 +1,6 @@
 {
-  "name": "@excalidraw/math",
-  "version": "0.18.0",
+  "name": "@wildmio/excalidraw-math",
+  "version": "0.18.0-custom.11",
   "type": "module",
   "types": "./dist/types/math/src/index.d.ts",
   "main": "./dist/prod/index.js",
@@ -54,13 +54,13 @@
       "last 1 safari version"
     ]
   },
-  "bugs": "https://github.com/excalidraw/excalidraw/issues",
-  "repository": "https://github.com/excalidraw/excalidraw",
+  "bugs": "https://github.com/wildMio/excalidraw/issues",
+  "repository": "https://github.com/wildMio/excalidraw",
   "scripts": {
     "gen:types": "rimraf types && tsc",
     "build:esm": "rimraf dist && node ../../scripts/buildBase.js && yarn gen:types"
   },
   "dependencies": {
-    "@excalidraw/common": "0.18.0"
+    "@excalidraw/common": "npm:@wildmio/excalidraw-common@0.18.0-custom.11"
   }
 }

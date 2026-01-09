@@ -26,20 +26,23 @@ const getArguments = () => {
   let tag = "test";
   let version = "";
   let nonInteractive = false;
+  let customScope = "";
 
   for (const argument of process.argv.slice(2)) {
     if (/--help/.test(argument)) {
       console.info(`Available arguments:
   --tag=<tag>                                    -> (optional) "test" (default), "next" for auto release, "latest" for stable release
   --version=<version>                            -> (optional) for "next" and "test", (required) for "latest" i.e. "0.19.0"
-  --non-interactive                              -> (optional) disables interactive prompts`);
+  --non-interactive                              -> (optional) disables interactive prompts
+  --scope=<custom-scope>                         -> (optional) custom scope to publish packages under, i.e. "my-org" will publish "@my-org/excalidraw[-<package>]"`);
 
       console.info(`\nUsage examples:
   - yarn release                                 -> publishes \`@excalidraw\` packages with "test" tag and "-[hash]" version suffix
   - yarn release --tag=test                      -> same as above
   - yarn release --tag=next                      -> publishes \`@excalidraw\` packages with "next" tag and version "-[hash]" suffix
   - yarn release --tag=next --non-interactive    -> skips interactive prompts (runs on CI/CD), otherwise same as above
-  - yarn release --tag=latest --version=0.19.0   -> publishes \`@excalidraw\` packages with "latest" tag and version "0.19.0" & prepares changelog for the release`);
+  - yarn release --tag=latest --version=0.19.0   -> publishes \`@excalidraw\` packages with "latest" tag and version "0.19.0" & prepares changelog for the release
+  - yarn release --version=0.19.0-custom.1 --scope=my-org   -> publishes \`@my-org/excalidraw\` packages with version "0.19.0-custom.1" & prepares changelog for the release`);
 
       process.exit(0);
     }
@@ -54,6 +57,10 @@ const getArguments = () => {
 
     if (/--non-interactive/.test(argument)) {
       nonInteractive = true;
+    }
+
+    if (/--scope=/.test(argument)) {
+      customScope = argument.split("=")[1];
     }
   }
 
@@ -85,7 +92,7 @@ const getArguments = () => {
 
   console.info(`Running with tag "${tag}" and version "${version}"...`);
 
-  return [tag, version, nonInteractive];
+  return [tag, version, nonInteractive, customScope];
 };
 
 const validatePackageName = (packageName) => {
@@ -100,7 +107,7 @@ const getPackageJsonPath = (packageName) => {
   return path.resolve(PACKAGES_DIR, packageName, "package.json");
 };
 
-const updatePackageJsons = (nextVersion) => {
+const updatePackageJsons = (nextVersion, customScope) => {
   const packageJsons = new Map();
 
   for (const packageName of PACKAGES) {
@@ -114,7 +121,13 @@ const updatePackageJsons = (nextVersion) => {
           continue;
         }
 
-        pkg.dependencies[`@excalidraw/${dependencyName}`] = nextVersion;
+        const scopeName = customScope
+          ? `npm:@${customScope}/excalidraw-${dependencyName}@`
+          : "";
+
+        pkg.dependencies[
+          `@excalidraw/${dependencyName}`
+        ] = `${scopeName}${nextVersion}`;
       }
     }
 
@@ -220,7 +233,7 @@ const publishPackages = (tag, version) => {
 
 /** main */
 (async () => {
-  const [tag, version, nonInteractive] = getArguments();
+  const [tag, version, nonInteractive, customScope] = getArguments();
 
   buildPackages();
 
@@ -228,7 +241,7 @@ const publishPackages = (tag, version) => {
     await updateChangelog(version);
   }
 
-  updatePackageJsons(version);
+  updatePackageJsons(version, customScope);
 
   if (nonInteractive) {
     publishPackages(tag, version);

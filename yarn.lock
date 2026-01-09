@@ -1442,6 +1442,21 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@excalidraw/common@npm:@wildmio/excalidraw-common@0.18.0-custom.10":
+  version "0.18.0-custom.10"
+  resolved "https://registry.yarnpkg.com/@wildmio/excalidraw-common/-/excalidraw-common-0.18.0-custom.10.tgz#b90f87bcdb752fe418e3301a30c577923f2efb5f"
+  integrity sha512-P99vQTKYwtVp4f50OFPMSv7LioGvVhklmyJoMfTTgUoJukdY1UMGBK011VQDAxUk4e1eUKJ7P84clzA01xxfPw==
+  dependencies:
+    tinycolor2 "1.6.0"
+
+"@excalidraw/element@npm:@wildmio/excalidraw-element@0.18.0-custom.10":
+  version "0.18.0-custom.10"
+  resolved "https://registry.yarnpkg.com/@wildmio/excalidraw-element/-/excalidraw-element-0.18.0-custom.10.tgz#a2dec838cdf8050be4e9204bb5a7ead58f2d896c"
+  integrity sha512-gW8woUuEvs6NQ3XZKBMKjkUA9C7zHmtW0Hk7cVtsW/aGLDMnQOczkqzV05UiVAgCkJBIAnQS4g+ZJxWKLU4mvw==
+  dependencies:
+    "@excalidraw/common" "npm:@wildmio/excalidraw-common@0.18.0-custom.10"
+    "@excalidraw/math" "npm:@wildmio/excalidraw-math@0.18.0-custom.10"
+
 "@excalidraw/eslint-config@1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@excalidraw/eslint-config/-/eslint-config-1.0.3.tgz#2122ef7413ae77874ae9848ce0f1c6b3f0d8bbbd"
@@ -1493,6 +1508,13 @@
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@excalidraw/markdown-to-text/-/markdown-to-text-0.1.2.tgz#1703705e7da608cf478f17bfe96fb295f55a23eb"
   integrity sha512-1nDXBNAojfi3oSFwJswKREkFm5wrSjqay81QlyRv2pkITG/XYB5v+oChENVBQLcxQwX4IUATWvXM5BcaNhPiIg==
+
+"@excalidraw/math@npm:@wildmio/excalidraw-math@0.18.0-custom.10":
+  version "0.18.0-custom.10"
+  resolved "https://registry.yarnpkg.com/@wildmio/excalidraw-math/-/excalidraw-math-0.18.0-custom.10.tgz#497e1a542e9ebd191d4f393a42658db9def1a76f"
+  integrity sha512-/T6jKakewQOrWBprenmMca34ipp11wbo1payDf1Lsp3pJg2x6XpHdkW6neDRuX96RXMt1Xurf/jcy04JBEGmyw==
+  dependencies:
+    "@excalidraw/common" "npm:@wildmio/excalidraw-common@0.18.0-custom.10"
 
 "@excalidraw/mermaid-to-excalidraw@1.1.2":
   version "1.1.2"
